@@ -1,5 +1,16 @@
-- script: chmod +x ./scripts/build.sh
-  displayName: "Grant execute permission to build.sh"
+#!/bin/bash
+set -e
 
-- script: ./scripts/build.sh
-  displayName: "Build artifact (zip www)"
+echo "Building static website..."
+
+# Create output folder
+mkdir -p www
+
+# Example content (you can replace this with your actual build process)
+echo "<h1>Hello from Azure Pipeline!</h1>" > www/index.html
+
+# Zip the folder for publishing
+echo "Zipping www folder..."
+zip -r site.zip www
+
+echo "Build complete. Created site.zip successfully."
