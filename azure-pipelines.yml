@@ -5,7 +5,7 @@ trigger:
 
 variables:
   storageAccountName: 'ichmahesh123'       # your storage account name
-  containerName: 'web'                     # your blob container name
+  containerName: '$web'                     # your blob container name
   azureSubscription: 'azure-myfrontend-connection'  # your Azure DevOps service connection name
 
 stages:
