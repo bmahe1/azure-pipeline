@@ -4,8 +4,8 @@ trigger:
       - main
 
 variables:
-  storageAccountName: 'mystorageacct'     # your storage account name
-  containerName: 'site'                   # your blob container name
+  storageAccountName: 'ichmahesh123'     # your storage account name
+  containerName: 'web'                   # your blob container name
   azureSubscription: 'azure-myfrontend-connection'  # your service connection name
 
 stages:
