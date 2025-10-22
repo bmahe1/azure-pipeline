@@ -39,7 +39,7 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           unzip -o site.zip
-          echo "Uploading contents of www/ to container $(containerName)..."
+          echo "Uploading contents of www/ to container $(web)..."
           az storage blob upload-batch \
             --account-name $(storageAccountName) \
             -s www/ \
