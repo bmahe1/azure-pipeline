@@ -6,7 +6,7 @@ trigger:
 variables:
   storageAccountName: 'mystorageacct'     # <-- change or set as pipeline variable
   containerName: 'site'                   # <-- change or set as pipeline variable
-  azureSubscription: 'AzureBlobServiceConnection'
+  azureSubscription: 'azure-myfrontend-connection'
 
 pool:
   vmImage: 'ubuntu-latest'
