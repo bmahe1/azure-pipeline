@@ -1,0 +1,46 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  storageAccountName: 'mystorageacct'     # <-- change or set as pipeline variable
+  containerName: 'site'                   # <-- change or set as pipeline variable
+  azureSubscription: 'AzureBlobServiceConnection'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: build
+    displayName: "Build static files"
+    steps:
+    - checkout: self
+    - script: ./scripts/build.sh
+      displayName: "Build artifact (zip www)"
+    - publish: site.zip
+      artifact: site
+
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - job: deploy
+    displayName: "Deploy to Azure Blob"
+    steps:
+    - download: current
+      artifact: site
+    - task: AzureCLI@2
+      displayName: "Upload to Azure Blob Storage"
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          unzip -o site.zip
+          echo "Uploading contents of www/ to container $(containerName)..."
+          az storage blob upload-batch \
+            --account-name $(storageAccountName) \
+            -s www/ \
+            -d $(containerName)
