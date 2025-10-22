@@ -35,30 +35,34 @@ stages:
         artifact: site
 
 - stage: Deploy
-  displayName: "Deploy Stage"
   dependsOn: Build
   jobs:
   - job: deploy
-    displayName: "Deploy to Azure Blob Storage"
+    displayName: "Deploy to Azure Blob"
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - download: current
-      artifact: site
-
+    - checkout: self
     - task: AzureCLI@2
       displayName: "Upload to Azure Blob Storage"
       inputs:
-        azureSubscription: '$(azureSubscription)'
+        azureSubscription: 'azure-myfrontend-connection'
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          echo "Unzipping site.zip..."
-          unzip -o site
+          echo "Account: $(storageAccountName), Container: $(containerName)"
+          
+          # Create container if missing
+          az storage container create \
+            --account-name $(storageAccountName) \
+            --name $(containerName) \
+            --auth-mode login
 
           echo "Uploading contents of www/ to container $(containerName)..."
           az storage blob upload-batch \
             --account-name $(storageAccountName) \
-            -s www/ \
-            -d $(containerName) \
+            --destination $(containerName) \
+            --source www \
             --auth-mode login
+
+          echo "✅ Upload complete!"
