@@ -54,7 +54,7 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           echo "Unzipping site.zip..."
-          unzip -o site.zip
+          unzip -o site
 
           echo "Uploading contents of www/ to container $(containerName)..."
           az storage blob upload-batch \
