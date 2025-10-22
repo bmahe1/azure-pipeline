@@ -4,18 +4,17 @@ trigger:
       - main
 
 variables:
-  storageAccountName: 'mystorageacct'     # <-- change or set as pipeline variable
-  containerName: 'site'                   # <-- change or set as pipeline variable
-  azureSubscription: 'azure-myfrontend-connection'
-
-pool:
-  vmImage: 'ubuntu-latest'
+  storageAccountName: 'mystorageacct'     # your storage account name
+  containerName: 'site'                   # your blob container name
+  azureSubscription: 'azure-myfrontend-connection'  # your service connection name
 
 stages:
 - stage: Build
   jobs:
   - job: build
     displayName: "Build static files"
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
     - checkout: self
     - script: ./scripts/build.sh
@@ -28,6 +27,8 @@ stages:
   jobs:
   - job: deploy
     displayName: "Deploy to Azure Blob"
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
     - download: current
       artifact: site
@@ -39,7 +40,7 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           unzip -o site.zip
-          echo "Uploading contents of www/ to container $(web)..."
+          echo "Uploading contents of www/ to container $(containerName)..."
           az storage blob upload-batch \
             --account-name $(storageAccountName) \
             -s www/ \
