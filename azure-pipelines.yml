@@ -4,45 +4,46 @@ trigger:
       - main
 
 variables:
-  storageAccountName: 'ichmahesh123'       # your storage account name
-  containerName: 'mahesh'                     # your blob container name
-  azureSubscription: 'azure-myfrontend-connection'  # your Azure DevOps service connection name
+  storageAccountName: 'ichmahesh123'
+  containerName: 'mahesh'
+  azureSubscription: 'azure-myfrontend-connection'
 
 stages:
+# ------------------ BUILD ------------------
 - stage: Build
   displayName: "Build Stage"
   jobs:
   - job: build
     displayName: "Build static files"
     pool:
-      vmImage: 'ubuntu-latest'
+      name: 'my-agent-0vm'       # <---- self-hosted agent
     steps:
     - checkout: self
 
-    # Make the build script executable
     - script: chmod +x ./scripts/build.sh
-      displayName: "Grant execute permission to build.sh"
+      displayName: "Make build.sh executable"
 
-    # Run build script
     - script: ./scripts/build.sh
       displayName: "Build artifact (zip www)"
 
-    # Publish the generated site.zip
     - task: PublishPipelineArtifact@1
       displayName: "Publish site.zip"
       inputs:
         targetPath: site.zip
         artifact: site
 
+# ------------------ DEPLOY ------------------
 - stage: Deploy
   dependsOn: Build
+  displayName: "Deploy Stage"
   jobs:
   - job: deploy
     displayName: "Deploy to Azure Blob"
     pool:
-      vmImage: 'ubuntu-latest'
+      name: 'my-agent-0vm'       # <---- self-hosted agent
     steps:
     - checkout: self
+
     - task: AzureCLI@2
       displayName: "Upload to Azure Blob Storage"
       inputs:
@@ -52,13 +53,12 @@ stages:
         inlineScript: |
           echo "Account: $(storageAccountName), Container: $(containerName)"
           
-          # Create container if missing
           az storage container create \
             --account-name $(storageAccountName) \
             --name $(containerName) \
             --auth-mode login
 
-          echo "Uploading contents of www/ to container $(containerName)..."
+          echo "Uploading contents of www/ to $(containerName)..."
           az storage blob upload-batch \
             --account-name $(storageAccountName) \
             --destination $(containerName) \
